@@ -1,0 +1,13 @@
+#version: "3.9"
+services:
+  discovery:
+    image: ghcr.io/some/java21-empty:latest # run from IntelliJ instead (placeholder)
+    profiles: ["app"]  # won't start by default
+  postgres-auth:
+    image: postgres:16
+    environment: [ POSTGRES_USER=auth, POSTGRES_PASSWORD=auth, POSTGRES_DB=auth ]
+    ports: ["5433:5432"]
+  postgres-swaps:
+    image: postgres:16
+    environment: [ POSTGRES_USER=swaps, POSTGRES_PASSWORD=swaps, POSTGRES_DB=swaps ]
+    ports: ["5434:5432"]

@@ -1,0 +1,21 @@
+server: { port: 8080 }
+spring:
+  application: { name: api-gateway }
+  cloud:
+    gateway:
+      default-filters:
+        - RemoveRequestHeader=Cookie
+      routes:
+        - id: auth
+          uri: lb://auth-service
+          predicates: [ Path=/auth/** ]
+        - id: swaps
+          uri: lb://swaps-service
+          predicates: [ Path=/swaps/** ]
+        - id: refdata
+          uri: lb://refdata-service
+          predicates: [ Path=/reference/** ]
+  main.web-application-type: reactive
+eureka.client.service-url.defaultZone: http://localhost:8761/eureka
+# Accept JWTs issued by auth-service (we’ll wire jwk set in Phase 1). For Phase 0 allow all:
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://localhost:9000/.well-known/jwks.json
