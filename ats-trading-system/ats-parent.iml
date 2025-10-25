@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <sourceFolder url="file://$MODULE_DIR$/platform/api-gateway/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/platform/api-gateway/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/platform/config-server/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/platform/discovery-server/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/platform/discovery-server/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/services/auth-service/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/auth-service/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/services/refdata-service/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/refdata-service/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/services/swaps-service/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/swaps-service/src/main/resources" type="java-resource" />
+    </content>
+  </component>
+</module>
