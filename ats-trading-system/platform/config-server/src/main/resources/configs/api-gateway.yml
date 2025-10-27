@@ -1,0 +1,106 @@
+# configs/api-gateway.yml
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  main:
+    web-application-type: reactive
+
+  # --- Service Discovery (Eureka) ---
+  cloud:
+    gateway:
+      # Discover services registered in Eureka as routes like lb://SERVICE-ID
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      # Global CORS for browser clients
+      globalcors:
+        corsConfigurations:
+          "/*":
+            allowedOrigins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000}"
+            allowedMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      # Define explicit routes (on top of discovery)
+      routes:
+        # Auth service (example)
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**        # incoming path pattern
+          filters:
+            - StripPrefix=1         # /auth/** -> /**
+            - name: Retry
+              args:
+                retries: 2
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE,INTERNAL_SERVER_ERROR
+                methods: GET
+            # Example header hardening
+            - RemoveRequestHeader=Cookie
+            - AddResponseHeader=X-Gateway, api-gateway
+
+        # Reference data service (example)
+        - id: refdata-service
+          uri: lb://refdata-service
+          predicates:
+            - Path=/ref/**          # e.g. /ref/indices
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: refdata-cb
+                fallbackUri: forward:/_fallback/refdata
+
+      # HTTP client tuning (reactor-netty)
+      httpclient:
+        connect-timeout: 5000         # ms
+        response-timeout: 10s
+
+  # --- Resource Server (optional; enable if API needs JWT validation at the gateway) ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "${SECURITY_JWKS_URI:http://localhost:8080/realms/demo/protocol/openid-connect/certs}"
+
+# Eureka client (service registration & discovery)
+eureka:
+  client:
+    service-url:
+      defaultZone: "${EUREKA_SERVER_URL:http://localhost:8761/eureka}"
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+
+# Management/Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers,gateway
+  endpoint:
+    health:
+      show-details: "when_authorized"
+
+# Logging
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.client: WARN
+
+# Example fallback handlers (handled inside the gateway app)
+# Create a simple @RestController mapping these paths if you want custom fallbacks.
+fallback:
+  paths:
+    refdata: "/_fallback/refdata"

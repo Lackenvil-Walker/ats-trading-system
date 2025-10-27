@@ -1,3 +1,10 @@
-server: { port: 9011 }
-spring: { application: { name: refdata-service } }
-eureka.client.service-url.defaultZone: http://localhost:8761/eureka
+server:
+  port: 9011
+spring:
+  application:
+    name: refdata-service
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+management.endpoints.web.exposure.include: health,info

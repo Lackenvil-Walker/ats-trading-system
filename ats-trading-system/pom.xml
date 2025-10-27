@@ -1,22 +1,30 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.ats</groupId><artifactId>ats-parent</artifactId><version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <modules>
-    <module>platform/config-server</module>
-    <module>platform/discovery-server</module>
-    <module>platform/api-gateway</module>
-    <module>services/auth-service</module>
-    <module>services/refdata-service</module>
-    <module>services/swaps-service</module>
-  </modules>
+    <groupId>com.ats</groupId>
+    <artifactId>ats-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-  <properties>
-    <java.version>21</java.version>
-    <spring.boot.version>3.3.4</spring.boot.version>
-  </properties>
+    <modules>
+        <module>platform/config-server</module>
+        <module>platform/discovery-server</module>
+        <module>platform/api-gateway</module>
+        <module>services/auth-service</module>
+        <module>services/refdata-service</module>
+        <module>services/swaps-service</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.boot.version>3.3.4</spring.boot.version>
+        <spring.cloud.version>2023.0.5</spring.cloud.version>
+    </properties>
+
+    <!-- Manage dependency versions via BOMs -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -29,22 +37,79 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2023.0.4</version>
+                <version>${spring.cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- Optional: manage Flyway pair here if you hit PG 16.10 support issues -->
+            <!--
+            <dependency>
+              <groupId>org.flywaydb</groupId>
+              <artifactId>flyway-core</artifactId>
+              <version>10.20.0</version>
+            </dependency>
+            <dependency>
+              <groupId>org.flywaydb</groupId>
+              <artifactId>flyway-database-postgresql</artifactId>
+              <version>10.20.0</version>
+            </dependency>
+            -->
         </dependencies>
     </dependencyManagement>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>${java.version}</release>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+    </dependencies>
 
+    <!-- Parent POM should NOT carry app/runtime dependencies.
+         Keep dependencies in each child module. -->
+
+    <build>
+        <!-- Provide versions here; children just reference the plugins -->
+        <pluginManagement>
+            <plugins>
+                <!-- Java 21 via -release -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                    </configuration>
+                </plugin>
+
+                <!-- Spring Boot plugin made available to children -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.boot.version}</version>
+                </plugin>
+
+                <!-- (Optional but nice) modern Surefire for JUnit Platform -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <!-- No direct plugins here; each runnable child should activate Boot plugin with:
+             <build><plugins><plugin>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-maven-plugin</artifactId>
+             </plugin></plugins></build>
+        -->
+    </build>
 </project>

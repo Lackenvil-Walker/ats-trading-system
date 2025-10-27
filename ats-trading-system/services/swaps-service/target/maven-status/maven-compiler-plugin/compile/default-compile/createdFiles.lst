@@ -1,3 +1,4 @@
 com\ats\swaps\domain\SwapTrade.class
 com\ats\swaps\repo\SwapTradeRepo.class
+com\ats\swaps\SwapsApp.class
 com\ats\swaps\api\SwapsController.class

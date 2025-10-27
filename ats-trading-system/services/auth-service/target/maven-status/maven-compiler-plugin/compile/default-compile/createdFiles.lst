@@ -1,4 +1,3 @@
-com\ats\auth\api\LoginReq.class
-com\ats\auth\api\AuthController.class
+com\ats\auth\SecurityConfig.class
 com\ats\auth\AuthServiceApp.class
-com\ats\auth\api\TokenRes.class
+com\ats\auth\AuthController.class

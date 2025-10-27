@@ -1,13 +1,17 @@
-server: { port: 8888 }
+server:
+  port: 8888
 spring:
-  application: { name: config-server }
+  application:
+    name: config-server
+  profiles:
+    active: native
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/Mutwila-Alinta/ats-config-repo
-          default-label: main
-          username: ${GITHUB_USERNAME}      # anything valid on GitHub (your username)
-          password: ${GITHUB_TOKEN}         # PAT with repo read
-          clone-on-start: true              # optional: fail fast at startup
-management.endpoints.web.exposure.include: health,info
+        native:
+          search-locations: classpath:/configs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,32 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: "${CONFIG_REPO_URI:file:///C:/repos/config-repo}"   # or a Git URL
+          default-label: "${CONFIG_REPO_BRANCH:main}"
+          search-paths: "${CONFIG_REPO_PATHS:configs}"
+          clone-on-start: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,refresh
+  endpoint:
+    health:
+      show-details: "never"
+
+logging:
+  level:
+    root: INFO
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
