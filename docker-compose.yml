@@ -8,20 +8,24 @@ volumes:
   pgdata-swaps:
 
 services:
+  # --- Databases ---
   postgres-auth:
     image: postgres:16
     environment:
       POSTGRES_USER: auth
       POSTGRES_PASSWORD: auth
       POSTGRES_DB: auth
-    ports: ["5433:5432"]
-    volumes: ["pgdata-auth:/var/lib/postgresql/data"]
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-auth:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U auth -d auth"]
       interval: 5s
       timeout: 3s
       retries: 10
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   postgres-swaps:
     image: postgres:16
@@ -29,19 +33,25 @@ services:
       POSTGRES_USER: swaps
       POSTGRES_PASSWORD: swaps
       POSTGRES_DB: swaps
-    ports: ["5434:5432"]
-    volumes: ["pgdata-swaps:/var/lib/postgresql/data"]
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata-swaps:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U swaps -d swaps"]
       interval: 5s
       timeout: 3s
       retries: 10
-    networks: [ats-net]
+    networks:
+      - ats-net
 
+  # --- Spring services (built from Dockerfiles in each module) ---
   config-server:
-    build: { context: ./config-server, dockerfile: Dockerfile }
-    image: ats/config-server:latest
-    ports: ["8888:8888"]
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
     environment:
       SPRING_PROFILES_ACTIVE: docker
     healthcheck:
@@ -49,28 +59,35 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   discovery-server:
-    build: { context: ./discovery-server, dockerfile: Dockerfile }
-    image: ats/discovery-server:latest
-    ports: ["8761:8761"]
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       # SPRING_CLOUD_CONFIG_URI: http://config-server:8888
     depends_on:
-      config-server: { condition: service_healthy }
+      config-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   auth-service:
-    build: { context: ./auth-service, dockerfile: Dockerfile }
-    image: ats/auth-service:latest
-    ports: ["9000:9000"]
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/auth
@@ -80,39 +97,50 @@ services:
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SERVER_PORT: 9000
     depends_on:
-      postgres-auth: { condition: service_healthy }
-      discovery-server: { condition: service_healthy }
-      config-server: { condition: service_healthy }
+      postgres-auth:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9000/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   refdata-service:
-    build: { context: ./refdata-service, dockerfile: Dockerfile }
-    image: ats/refdata-service:latest
-    ports: ["9011:9011"]
+    build:
+      context: ./refdata-service
+      dockerfile: Dockerfile
+    ports:
+      - "9011:9011"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SERVER_PORT: 9011
     depends_on:
-      discovery-server: { condition: service_healthy }
-      config-server: { condition: service_healthy }
+      discovery-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9011/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   swaps-service:
-    build: { context: ./swaps-service, dockerfile: Dockerfile }
-    image: ats/swaps-service:latest
-    ports: ["9021:9021"]
+    build:
+      context: ./swaps-service
+      dockerfile: Dockerfile
+    ports:
+      - "9021:9021"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-swaps:5432/swaps
@@ -122,31 +150,40 @@ services:
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SERVER_PORT: 9021
     depends_on:
-      postgres-swaps: { condition: service_healthy }
-      discovery-server: { condition: service_healthy }
-      config-server: { condition: service_healthy }
+      postgres-swaps:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9021/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   api-gateway:
-    build: { context: ./api-gateway, dockerfile: Dockerfile }
-    image: ats/api-gateway:latest
-    ports: ["8080:8080"]
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SERVER_PORT: 8080
     depends_on:
-      discovery-server: { condition: service_healthy }
-      config-server: { condition: service_healthy }
+      discovery-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
       retries: 12
-    networks: [ats-net]
+    networks:
+      - ats-net
