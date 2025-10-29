@@ -1,3 +1,11 @@
 com\ats\auth\SecurityConfig.class
+com\ats\auth\security\JwtService.class
+com\ats\auth\api\dto\AuthDtos$RefreshRequest.class
+com\ats\auth\security\JwtAuthFilter.class
+com\ats\auth\api\dto\AuthDtos$LoginRequest.class
+com\ats\auth\api\dto\AuthDtos.class
+com\ats\auth\api\AuthController.class
 com\ats\auth\AuthServiceApp.class
+com\ats\auth\api\dto\AuthDtos$TokenResponse.class
 com\ats\auth\AuthController.class
+com\ats\auth\api\RestExceptionHandler.class

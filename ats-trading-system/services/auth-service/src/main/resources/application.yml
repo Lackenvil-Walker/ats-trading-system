@@ -1,10 +1,42 @@
-server: { port: 9000 }
+server:
+  port: 9000
+  error:
+    whitelabel:
+      enabled: false
+
 spring:
-  application: { name: auth-service }
+  application:
+    name: auth-service
   datasource:
     url: jdbc:postgresql://localhost:5433/auth
     username: auth
     password: auth
-  jpa.hibernate.ddl-auto: validate
-  flyway.enabled: true
-eureka.client.service-url.defaultZone: http://localhost:8761/eureka
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info # keep minimal; add 'mappings' temporarily when debugging
+  endpoint:
+    health:
+      show-details: when_authorized # tighter default
+  server:
+    port: 9001 # optional: split actuator port to avoid accidental exposure
+
+app:
+  jwt:
+    secret: "CHANGE-ME-THIS-IS-AT-LEAST-32-CHARS-LONG"
+    access-minutes: 15
+    refresh-days: 7
+  cors:
+    allowed-origins: "http://localhost:5173,http://localhost:3000" # your frontends
