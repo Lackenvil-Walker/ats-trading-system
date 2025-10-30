@@ -46,8 +46,8 @@ services:
 
   config-server:
     build:
-      context: ./platform/config-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: platform/config-server/Dockerfile
     ports:
       - "8888:8888"
     environment:
@@ -58,8 +58,8 @@ services:
 
   discovery-server:
     build:
-      context: ./platform/discovery-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: platform/discovery-server/Dockerfile
     ports:
       - "8761:8761"
     environment:
@@ -73,8 +73,8 @@ services:
 
   auth-service:
     build:
-      context: ./platform/auth-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/auth-service/Dockerfile
     ports:
       - "9000:9000"
     environment:
@@ -95,8 +95,8 @@ services:
 
   refdata-service:
     build:
-      context: ./platform/refdata-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/refdata-service/Dockerfile
     ports:
       - "9011:9011"
     environment:
@@ -112,8 +112,8 @@ services:
 
   swaps-service:
     build:
-      context: ./platform/swaps-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/swaps-service/Dockerfile
     ports:
       - "9021:9021"
     environment:
@@ -134,8 +134,8 @@ services:
 
   api-gateway:
     build:
-      context: ./platform/api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: platform/api-gateway/Dockerfile
     ports:
       - "8080:8080"
     environment:

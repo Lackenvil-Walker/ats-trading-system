@@ -5,27 +5,29 @@ WORKDIR /workspace
 # Copy parent POM
 COPY pom.xml ./
 
-# Copy all module POMs
-COPY platform/config-server/pom.xml ./platform/config-server/
-COPY platform/discovery-server/pom.xml ./platform/discovery-server/
-COPY platform/api-gateway/pom.xml ./platform/api-gateway/
-COPY services/auth-service/pom.xml ./services/auth-service/
-COPY services/refdata-service/pom.xml ./services/refdata-service/
-COPY services/swaps-service/pom.xml ./services/swaps-service/
+# Copy entire platform and services directories
+COPY platform ./platform
+COPY services ./services
 
-# Download dependencies
-RUN mvn dependency:go-offline -B || true
-
-# Copy source code
-COPY services/refdata-service/src ./services/refdata-service/src
-
-# Build only this module
-RUN mvn -pl services/refdata-service -am clean package -DskipTests
+# Build only this module (adjust the path for each service)
+WORKDIR /workspace
+RUN mvn -pl platform/config-server -am clean package -DskipTests
+# ☝️ Change this line for each service:
+# config-server: -pl platform/config-server
+# discovery-server: -pl platform/discovery-server
+# api-gateway: -pl platform/api-gateway
+# auth-service: -pl services/auth-service
+# refdata-service: -pl services/refdata-service
+# swaps-service: -pl services/swaps-service
 
 # ---- Runtime stage ----
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /workspace/services/refdata-service/target/*.jar /app/app.jar
+COPY --from=build /workspace/platform/config-server/target/*.jar /app/app.jar
+# ☝️ Change this path for each service too
+
 ENV JAVA_OPTS=""
-EXPOSE 9011
+EXPOSE 8888
+# ☝️ Change port for each service
+
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
