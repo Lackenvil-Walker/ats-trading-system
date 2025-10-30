@@ -64,6 +64,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": "all"
+          },
           "configurations": {
             "production": {
               "buildTarget": "ats-ui:build:production"
