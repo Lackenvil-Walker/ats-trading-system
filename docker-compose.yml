@@ -76,7 +76,7 @@ services:
       context: .
       dockerfile: services/auth-service/Dockerfile
     ports:
-      - "9000:9000"
+      - "9555:9555"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/auth
