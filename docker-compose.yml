@@ -20,6 +20,11 @@ services:
       - pgdata-auth:/var/lib/postgresql/data
     networks:
       - ats-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres-swaps:
     image: postgres:16
@@ -33,6 +38,11 @@ services:
       - pgdata-swaps:/var/lib/postgresql/data
     networks:
       - ats-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swaps"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   config-server:
     build:
@@ -44,6 +54,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     networks:
       - ats-net
+    restart: unless-stopped
 
   discovery-server:
     build:
@@ -58,6 +69,7 @@ services:
         condition: service_started
     networks:
       - ats-net
+    restart: unless-stopped
 
   auth-service:
     build:
@@ -72,13 +84,14 @@ services:
       SPRING_DATASOURCE_PASSWORD: auth
     depends_on:
       postgres-auth:
-        condition: service_started
+        condition: service_healthy
       discovery-server:
         condition: service_started
       config-server:
         condition: service_started
     networks:
       - ats-net
+    restart: unless-stopped
 
   refdata-service:
     build:
@@ -95,6 +108,7 @@ services:
         condition: service_started
     networks:
       - ats-net
+    restart: unless-stopped
 
   swaps-service:
     build:
@@ -109,13 +123,14 @@ services:
       SPRING_DATASOURCE_PASSWORD: swaps
     depends_on:
       postgres-swaps:
-        condition: service_started
+        condition: service_healthy
       discovery-server:
         condition: service_started
       config-server:
         condition: service_started
     networks:
       - ats-net
+    restart: unless-stopped
 
   api-gateway:
     build:
@@ -132,3 +147,4 @@ services:
         condition: service_started
     networks:
       - ats-net
+    restart: unless-stopped
