@@ -148,3 +148,14 @@ services:
     networks:
       - ats-net
     restart: unless-stopped
+  ats-ui:
+    build:
+      context: ./ats-ui
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - ats-net
+    restart: unless-stopped
