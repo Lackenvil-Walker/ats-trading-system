@@ -18,12 +18,8 @@ services:
       - "5433:5432"
     volumes:
       - pgdata-auth:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U auth -d auth"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   postgres-swaps:
     image: postgres:16
@@ -35,12 +31,8 @@ services:
       - "5434:5432"
     volumes:
       - pgdata-swaps:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U swaps -d swaps"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   config-server:
     build:
@@ -50,7 +42,8 @@ services:
       - "8888:8888"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   discovery-server:
     build:
@@ -63,11 +56,13 @@ services:
     depends_on:
       config-server:
         condition: service_started
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   auth-service:
     build:
       context: ./platform/auth-service
+      dockerfile: Dockerfile
     ports:
       - "9000:9000"
     environment:
@@ -82,11 +77,13 @@ services:
         condition: service_started
       config-server:
         condition: service_started
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   refdata-service:
     build:
       context: ./platform/refdata-service
+      dockerfile: Dockerfile
     ports:
       - "9011:9011"
     environment:
@@ -96,11 +93,13 @@ services:
         condition: service_started
       config-server:
         condition: service_started
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   swaps-service:
     build:
       context: ./platform/swaps-service
+      dockerfile: Dockerfile
     ports:
       - "9021:9021"
     environment:
@@ -115,11 +114,13 @@ services:
         condition: service_started
       config-server:
         condition: service_started
-    networks: [ats-net]
+    networks:
+      - ats-net
 
   api-gateway:
     build:
       context: ./platform/api-gateway
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -129,4 +130,5 @@ services:
         condition: service_started
       config-server:
         condition: service_started
-    networks: [ats-net]
+    networks:
+      - ats-net
